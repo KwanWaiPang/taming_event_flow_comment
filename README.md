@@ -114,4 +114,10 @@ Aborted (core dumped)
 
 * 测试mvsec indoor
 
+# 运行测试DSEC
+```
+conda activate taming_event_flow
+python eval_flow.py dsec_model --config configs/eval_dsec.yml
+```
+
 * 测试dsec
