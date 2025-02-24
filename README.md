@@ -5,7 +5,7 @@
 
 [comment]: <> (  <h2 align="center">PAPER</h2>)
   <h3 align="center">
-  <a href="https://kwanwaipang.github.io/Awesome-Event-based-Contrast-Maximization/">Blog for Awesome Event-based Contrast Maximization</a> 
+  <a href="https://kwanwaipang.github.io/Taming-Contrast-Maximization/">Blog</a> 
   | <a href="https://arxiv.org/pdf/2303.05214">paper</a>
   | <a href="https://github.com/tudelft/taming_event_flow">Original Github Page</a>
   </h3>
@@ -103,7 +103,7 @@ Aborted (core dumped)
 </div>
 即可~
 
-视频效果如下：
+视频效果（请见blog）
 * 测试mvsec outdoor driving；PS: 视频中依次为：输入的事件，GT光流（Lidar），IWE，估算的光流，AEE（暂时还未知是什么）
 
 <div align="center">
