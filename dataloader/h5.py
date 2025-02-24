@@ -58,7 +58,7 @@ class H5Loader(BaseDataLoader):
         self.files = []
         for root, dirs, files in os.walk(config["data"]["path"]):
             for file in files:
-                if file.endswith(".h5"):
+                if file.endswith(".h5"):#只要是h5就会读入的
                     self.files.append(os.path.join(root, file))
 
         # shuffle files

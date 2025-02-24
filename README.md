@@ -104,17 +104,42 @@ Aborted (core dumped)
 即可~
 
 视频效果（请见blog）
-* 测试mvsec outdoor driving；PS: 视频中依次为：输入的事件，GT光流（Lidar），IWE，估算的光流，AEE（暂时还未知是什么）
+* 测试mvsec outdoor driving（应该是outdoor driving day 1）；PS: 视频中依次为：输入的事件，GT光流（Lidar），IWE，估算的光流，AEE（暂时还未知是什么）
 
 <div align="center">
-  <img src="./results/Figs/微信截图_20250224144908.png" width="80%" />
+  <img src="./results/Figs//微信截图_20250224144908.png" width="80%" />
 <figcaption>  
 </figcaption>
 </div>
 
-* 测试mvsec indoor
+* 测试mvsec indoor flying 数据集
 
-# 运行测试DSEC
+<div align="center">
+  <img src="./results/Figs/微信截图_20250224165828.png" width="80%" />
+<figcaption>  
+同时运行多个数据集的话可能不保存数值结果。。。。
+</figcaption>
+</div>
+
+<!-- indoor\_flying\_3
+
+18.26
+
+indoor\_flying\_1
+
+31.40
+
+indoor\_flying\_2 -->
+
+关于在mvsec上的测试，值得一提的是，作者在论文中提到`we decided to transfer one of our models trained on DSEC-Flow to MVSEC.`也就是说网络是在DSEC上训练的，迁移到MVSEC上测试（可见还是有不错的泛化能力的）。
+论文中的结果如下图所示：
+<div align="center">
+  <img src="./results/Figs/微信截图_20250224165926.png" width="80%" />
+<figcaption>  
+</figcaption>
+</div>
+
+## 运行测试DSEC
 ```
 conda activate taming_event_flow
 python eval_flow.py dsec_model --config configs/eval_dsec.yml
