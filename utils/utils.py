@@ -18,7 +18,8 @@ def load_model(prev_runid, model, device, curr_run=None, tb_writer=None):
 
     starting_epoch = 0
     if os.path.isfile(model_dir):
-        model_loaded = torch.load(model_dir, map_location=device).state_dict()
+        # model_loaded = torch.load(model_dir, map_location=device).state_dict()
+        model_loaded = torch.load(model_dir, map_location=device, weights_only=False).state_dict()
 
         # check for input-dependent layers
         for key in model_loaded.keys():

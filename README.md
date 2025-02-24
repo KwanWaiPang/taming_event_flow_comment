@@ -26,6 +26,7 @@ conda activate taming_event_flow
 # 安装系列依赖
 pip install -r requirements.txt
 
+# pip install qtconsole
 ```
 
 # 数据的下载
@@ -41,10 +42,76 @@ pip install -r requirements.txt
 conda activate taming_event_flow
 mlflow ui
 ```
-然后本地网页打开`http://127.0.0.1:5000 `即可看到界面如下
+然后本地网页打开`http://127.0.0.1:5000`即可看到界面如下
 
 <div align="center">
   <img src="./results/Figs/微信截图_20250224134337.png" width="60%" />
 <figcaption>  
 </figcaption>
 </div>
+
+而将下载的模型解压后，则可视化如下：
+
+<div align="center">
+  <img src="./results/Figs/微信截图_20250224140420.png" width="60%" />
+<figcaption>  
+</figcaption>
+</div>
+
+
+# Inference
+* 注意需要修改`config/eval_flow.yml`文件中的数据等参数
+
+## 运行测试MVSEC
+
+```bash
+conda activate taming_event_flow
+python eval_flow.py mvsec_model --config configs/eval_mvsec.yml
+```
+初始运行可能存在下面的报错
+```bash
+model_loaded = torch.load(model_dir, map_location=device).state_dict()
+  File "/home/gwp/miniconda3/envs/taming_event_flow/lib/python3.10/site-packages/torch/serialization.py", line 1470, in load
+    raise pickle.UnpicklingError(_get_wo_message(str(e))) from None
+_pickle.UnpicklingError: Weights only load failed. This file can still be loaded, to do so you have two options, do those steps only if you trust the source of the checkpoint. 
+        (1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+        (2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+        WeightsUnpickler error: Unsupported global: GLOBAL models.model.RecEVFlowNet was not an allowed global by default. Please use `torch.serialization.add_safe_globals([RecEVFlowNet])` or the `torch.serialization.safe_globals([RecEVFlowNet])` context manager to allowlist this global if you trust this class/function.
+
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.
+```
+解决方法则是修改`utils/utils.py`中的代码为下面即可
+```python
+# model_loaded = torch.load(model_dir, map_location=device).state_dict()
+model_loaded = torch.load(model_dir, map_location=device, weights_only=False).state_dict()
+```
+
+之后又遇到报错需要用MobaXterm才可以可视化运行，但会遇到下面错误
+```bash
+/home/gwp/miniconda3/envs/taming_event_flow/lib/python3.10/site-packages/torch/functional.py:539: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:3637.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+test.h5 |                                | 0.1%, ETA: 5556s, 0.163452HzASSERT: "false" in file qasciikey.cpp, line 501
+Aborted (core dumped)
+```
+网上资料说的是`A workaround in MobaXterm is to uncheck "Unix-compatible keyboard" in X11 settings.`
+
+进入软件左上角找到settings->configuration->X11，去除Unix-compatible keyboard前面的选项（不能勾选它）
+<div align="center">
+  <img src="./results/Figs/微信截图_20250224143156.png" width="60%" />
+<figcaption>  
+</figcaption>
+</div>
+即可~
+
+视频效果如下：
+* 测试mvsec outdoor driving；PS: 视频中依次为：输入的事件，GT光流（Lidar），IWE，估算的光流，AEE（暂时还未知是什么）
+
+<div align="center">
+  <img src="./results/Figs/微信截图_20250224144908.png" width="80%" />
+<figcaption>  
+</figcaption>
+</div>
+
+* 测试mvsec indoor
+
+* 测试dsec

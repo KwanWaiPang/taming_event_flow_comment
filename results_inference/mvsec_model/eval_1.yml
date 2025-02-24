@@ -1,0 +1,61 @@
+data:
+  cache: false
+  mode: gtflow
+  passes_loss: 1
+  path: datasets/mvsec_eval
+  scales_loss: 1
+  voxel: null
+  window: 1
+experiment: Default
+loader:
+  augment: []
+  augment_prob:
+  - 0.5
+  - 0.5
+  - 0.5
+  batch_size: 1
+  gpu: 0
+  max_num_grad_events: null
+  n_epochs: 200
+  resolution:
+  - 260
+  - 346
+  seed: null
+loss:
+  clip_grad: 100.0
+  flow_scaling: 32
+  flow_spat_smooth_weight: null
+  flow_temp_smooth_weight: null
+  nonlinear_mode: two
+  round_ts: false
+  warping: NonLinear
+metrics:
+  eval_time:
+  - 222.4
+  - 240.4
+  mask_aee: true
+  name:
+  - FWL
+  - RSAT
+  - AEE
+  res_aee:
+  - 256
+  - 256
+  vertical_crop_aee: 190
+  warping: Iterative
+model:
+  final_w_scale: 0.01
+  name: RecEVFlowNet
+optimizer:
+  lr: 1.0e-05
+  name: Adam
+prev_runid: ''
+vis:
+  bars: true
+  dynamic: false
+  enabled: true
+  mask_output: true
+  px: 400
+  show: null
+  store: false
+  verbose: true
