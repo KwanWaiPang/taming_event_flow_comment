@@ -121,16 +121,6 @@ Aborted (core dumped)
 </figcaption>
 </div>
 
-<!-- indoor\_flying\_3
-
-18.26
-
-indoor\_flying\_1
-
-31.40
-
-indoor\_flying\_2 -->
-
 关于在mvsec上的测试，值得一提的是，作者在论文中提到`we decided to transfer one of our models trained on DSEC-Flow to MVSEC.`也就是说网络是在DSEC上训练的，迁移到MVSEC上测试（可见还是有不错的泛化能力的）。
 论文中的结果如下图所示：
 <div align="center">
