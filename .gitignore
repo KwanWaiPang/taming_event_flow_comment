@@ -3,3 +3,4 @@ datasets/*
 mlruns/*
 __MACOSX/*
 __pycache__
+results_inference/dsec_model/*
