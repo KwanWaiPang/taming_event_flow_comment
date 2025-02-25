@@ -149,7 +149,7 @@ python eval_flow.py dsec_model --config configs/eval_dsec.yml
 <table style="border: none; background-color: transparent;">
   <tr align="center">
     <td style="width: 33%; border: none; padding: 0.01; background-color: transparent; vertical-align: middle;">
-      <img src="results/Figs/zurich_city_12_a/events/000000009.png" width="100%" />
+      <img src="results/Figs/zurich_city_12_a/events/000000000.png" width="100%" />
       events
     </td>
     <td style="width: 33%; border: none; padding: 0.01; background-color: transparent; vertical-align: middle;">
