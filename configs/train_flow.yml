@@ -1,4 +1,4 @@
-experiment: Default
+experiment: Default #应该是实验名字
 
 data:
     path: ../datasets/dsec_train
@@ -10,7 +10,7 @@ data:
     cache: False
 
 model:
-    name: RecEVFlowNet
+    name: RecEVFlowNet #模型的名字
     final_w_scale: 0.01
 
 loss:

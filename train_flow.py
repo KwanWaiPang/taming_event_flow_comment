@@ -32,21 +32,21 @@ def train(args, config_parser):
     config = config_parser.combine_entries(config)
     print("MLflow dir:", mlflow.active_run().info.artifact_uri[:-9])
 
-    # log git diff
+    # log git diff应该是保存log的
     save_diff("train_diff.txt")
     tb_writer = SummaryWriter(log_dir=args.path_mlflow + "mlruns/0/" + runid + "/")
 
-    # initialize settings
+    # initialize settings 一些初始化的设置
     device = config_parser.device
     kwargs = config_parser.loader_kwargs
     config["loader"]["device"] = device
 
-    # visualization tool
+    # visualization tool 可视化的工具
     if config["vis"]["enabled"]:
         vis = Visualization(config)
 
     # data loader
-    data = H5Loader(config, shuffle=True, path_cache=args.path_cache)
+    data = H5Loader(config, shuffle=True, path_cache=args.path_cache)#读入数据，以h5形式
     dataloader = torch.utils.data.DataLoader(
         data,
         drop_last=True,
@@ -58,13 +58,14 @@ def train(args, config_parser):
 
     # model initialization and settings
     num_bins = 2 if config["data"]["voxel"] is None else config["data"]["voxel"]
-    model = eval(config["model"]["name"])(config["model"].copy(), num_bins, key="flow")
-    model = model.to(device)
+    model = eval(config["model"]["name"])(config["model"].copy(), num_bins, key="flow")#初始化model为RecEVFlowNet
+    model = model.to(device)#放到cuda上
+    # 应该是开始注册模型（初始化模型）
     model, epoch = load_model(args.prev_runid, model, device, curr_run=run, tb_writer=tb_writer)
-    model.train()
+    model.train()#进行训练
 
     # loss functions
-    loss_function = eval(config["loss"]["warping"])(config, device)
+    loss_function = eval(config["loss"]["warping"])(config, device) #采用什么样的loss function，并初始化loss类（初始化为Iterative）
 
     # optimizers
     optimizer = eval(config["optimizer"]["name"])(model.parameters(), lr=config["optimizer"]["lr"])
@@ -76,7 +77,7 @@ def train(args, config_parser):
     end_train = False
     data.epoch = epoch
 
-    # dataloader loop
+    # dataloader loop 主循环
     while True:
         for inputs in dataloader:
 
@@ -103,11 +104,11 @@ def train(args, config_parser):
                     break
 
             # forward pass (flow in px/input_time)
-            x = model(inputs["net_input"].to(device))
+            x = model(inputs["net_input"].to(device))#经过网络获得的光流
             for i in range(len(x["flow"])):
                 x["flow"][i] = x["flow"][i] * config["loss"]["flow_scaling"]
 
-            # event-flow association
+            # event-flow association（计算loss的过程，对应loss/flow_val.py中的update函数）
             loss_function.update(
                 x["flow"],
                 inputs["event_list"].to(device),
@@ -162,9 +163,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config",
-        default="configs/train_flow.yml",
+        default="configs/train_flow.yml",#默认输入参数文件
         help="training configuration",
     )
+    # 训练的时候其他参数均为空的，只有configs/train_flow.yml
     parser.add_argument(
         "--path_mlflow",
         default="",

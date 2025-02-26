@@ -209,12 +209,12 @@ def test(args, config_parser):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("runid", help="mlflow run")
+    parser.add_argument("runid", help="mlflow run") #指定运行的为哪个模型
     parser.add_argument(
         "--config",
         default="configs/eval_flow.yml",
         help="config file, overwrites mlflow settings",
-    )
+    )#输如参数文件
     parser.add_argument(
         "--path_mlflow",
         default="",

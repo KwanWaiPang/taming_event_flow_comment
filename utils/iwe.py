@@ -16,19 +16,19 @@ def event_propagation(events_ts, events_idx, flow, tref):
 
 def get_event_flow(flow_map_x, flow_map_y, event_loc):
     """
-    Sample optical flow maps using event indices
-    :param flow_map_x: [batch_size x H x W] horizontal optical flow map
-    :param flow_map_y: [batch_size x H x W] vertical optical flow map
-    :param event_loc: [batch_size x N x 2] event locations
+    Sample optical flow maps using event indices，根据光流图和事件索引获取事件光流
+    :param flow_map_x: [batch_size x H x W] horizontal optical flow map，光流图
+    :param flow_map_y: [batch_size x H x W] vertical optical flow map，光流图
+    :param event_loc: [batch_size x N x 2] event locations，事件的位置
     :return event_flow: [batch_size x N x 2] per-event optical flow (y, x)
     """
 
     _, h, w = flow_map_x.shape
 
     # flow vector per input event
-    event_idx = event_loc.clone()
-    event_idx[..., 0] = 2 * event_idx[..., 0] / (h - 1) - 1
-    event_idx[..., 1] = 2 * event_idx[..., 1] / (w - 1) - 1
+    event_idx = event_loc.clone()#事件的位置,作为索引
+    event_idx[..., 0] = 2 * event_idx[..., 0] / (h - 1) - 1#归一化
+    event_idx[..., 1] = 2 * event_idx[..., 1] / (w - 1) - 1#归一化
     event_idx = torch.roll(event_idx, 1, dims=-1).unsqueeze(2)  # needs to be (x, y) and not (y, x)
 
     event_flow_x = f.grid_sample(flow_map_x.unsqueeze(1), event_idx, mode="bilinear", align_corners=True)

@@ -67,7 +67,7 @@ class RecEVFlowNet(BaseModel):
         # image padding
         x = self.image_padder.pad(x).contiguous()
 
-        # forward pass
+        # forward pass 输入图像就获得光流
         multires_flow = self.arch.forward(x)
 
         # upsample flow estimates to the original input resolution

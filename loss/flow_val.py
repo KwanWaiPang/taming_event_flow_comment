@@ -83,30 +83,32 @@ class BaseValidation(torch.nn.Module):
         """
 
         # update event timestamps
-        event_list[:, :, 0:1] += self._passes  # only nonzero second time
-        event_ts = event_list[:, :, 0:1].clone()
-        if self.config["loss"]["round_ts"]:
+        event_list[:, :, 0:1] += self._passes  # only nonzero second time，self._passes应该就是过去了多少时间，把事件的时间都累加一下
+        event_ts = event_list[:, :, 0:1].clone()#获取所有的事件时间
+        if self.config["loss"]["round_ts"]: #参数文件中设置为false，如果是true的话应该就是将所有值改为最小的+0.5
             event_ts[...] = event_ts.min() + 0.5
 
-        if self._event_ts is None:
+        if self._event_ts is None:#如果事件的时间为空的话
+            # 就将新的事件时间，_event_loc（里面存了除时间以外的yxp信息），事件极性mask赋值给原来的数据
             self._event_ts = event_ts
             self._event_loc = event_list[:, :, 1:3].clone()
             self._event_pol_mask = pol_mask.clone()
-        else:
+        else:#若不为空，就将新的事件时间，事件位置，事件极性mask拼接到原来的数据上
             self._event_ts = torch.cat([self._event_ts, event_ts], dim=1)
             self._event_loc = torch.cat([self._event_loc, event_list[:, :, 1:3].clone()], dim=1)
             self._event_pol_mask = torch.cat([self._event_pol_mask, pol_mask.clone()], dim=1)
 
         # update optical flow maps
-        flow = flow_list[-1]  # only highest resolution flow
-        if self._flow_maps_x is None:
+        flow = flow_list[-1]  # only highest resolution flow，获取最高分辨率的光流
+        if self._flow_maps_x is None:#如果光流为空的话
+            # 就将新的光流x，y赋值给原来的数据
             self._flow_maps_x = flow[:, 0:1, :, :]
             self._flow_maps_y = flow[:, 1:2, :, :]
         else:
             self._flow_maps_x = torch.cat([self._flow_maps_x, flow[:, 0:1, :, :]], dim=1)
             self._flow_maps_y = torch.cat([self._flow_maps_y, flow[:, 1:2, :, :]], dim=1)
 
-        # update internal smoothing mask
+        # update internal smoothing mask，更新内部平滑掩码
         if self._event_mask is None:
             self._event_mask = event_mask
         else:
@@ -445,7 +447,7 @@ class Iterative(BaseValidation):
         :param event_pol_mask: [batch_size x N x 2] event polarity mask
         """
 
-        event_ts = event_list[:, :, 0:1].clone()
+        event_ts = event_list[:, :, 0:1].clone()#获取所有的事件的时间
         if self.config["loss"]["round_ts"]:
             event_ts[...] = event_ts.min() + 0.5
 
@@ -477,47 +479,49 @@ class Iterative(BaseValidation):
     def update(self, flow_list, event_list, pol_mask, event_mask):
         """
         Initialize/Update container lists of events and flow maps for forward warping.
-        :param flow_list: [[batch_size x 2 x H x W]] list of optical flow (x, y) maps
-        :param event_list: [batch_size x N x 4] input events (ts, y, x, p)
+        :param flow_list: [[batch_size x 2 x H x W]] list of optical flow (x, y) maps，这就是网络估算的光流
+        :param event_list: [batch_size x N x 4] input events (ts, y, x, p)，这就是原始输入的事件
         :param pol_mask: [batch_size x N x 2] polarity mask (pos, neg)
         :param event_mask: [batch_size x 1 x H x W] event mask
         """
 
         # update base lists (event data, flow maps, event masks)
-        self.update_base(flow_list, event_list, pol_mask, event_mask)
+        self.update_base(flow_list, event_list, pol_mask, event_mask)#更新这个类中的一些基本数据
 
         ############
-        # FORWARD WARPING
+        # FORWARD WARPING，进行前向warp的操作
         ############
 
         # initialize and update event lists for fw warping
-        self.update_fw_event_lists(event_list, pol_mask)
+        self.update_fw_event_lists(event_list, pol_mask)#输入的为原始事件和极性mask，更新要准备进行warp的事件列表
 
-        # sample optical flow
+        # sample optical flow，根据事件的位置以及光流，获取每个事件的光流值
         fw_event_flow = get_event_flow(
             self._flow_maps_x[:, -1, ...],
             self._flow_maps_y[:, -1, ...],
             self._fw_event_loc,
-        )
+        )#获取的fw_event_flow为每个事件的光流值（y,x）
 
-        # event warping process
+        # event warping process，进行warping的处理
         self._fw_event_loc = event_propagation(
-            self._fw_event_warp_ts,
-            self._fw_event_loc,
-            fw_event_flow,
-            self._passes + 1,
+            self._fw_event_warp_ts,#事件的时间
+            self._fw_event_loc,#事件的位置
+            fw_event_flow, #光流（事件）
+            self._passes + 1, #reference time toward which events are warped
         )
+        
+        # Purge events that are warped outside the image space.（下面函数则是将越界的事件都丢掉） 
         self._fw_event_loc, self._fw_event_pol_mask = purge_unfeasible(
             self._fw_event_loc,
             self._fw_event_pol_mask,
             self.res,
         )
 
-        # update warping times
+        # update warping times 更新warp的时间，下次warp的时间就是当前的passes+1
         self._fw_event_warp_ts[...] = self._passes + 1
 
         ############
-        # BACKWARD WARPING
+        # BACKWARD WARPING，进行反向warp的操作
         ############
 
         bw_event_loc = event_list[:, :, 1:3].clone()
