@@ -14,6 +14,8 @@
 
 <br>
 
+此分支为解读版本，初始测试请见分支[main](https://github.com/KwanWaiPang/taming_event_flow_comment/tree/main)
+
 # 配置
 * 原版采用pyenv来管理python虚拟环境的，此处改为conda
 
