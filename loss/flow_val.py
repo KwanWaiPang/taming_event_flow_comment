@@ -557,7 +557,7 @@ class Iterative(BaseValidation):
             bw_event_warp_ts[...] = self._passes + cnt
             cnt -= 1
 
-        self.update_bw_event_lists(bw_event_loc, bw_event_pol_mask)
+        self.update_bw_event_lists(bw_event_loc, bw_event_pol_mask)#输入的为原始事件和极性mask，更新要准备进行warp的事件列表（此处应该是back warp）
 
         ########################
         # FORWARD-PROPAGATED FLOW
